@@ -1,0 +1,230 @@
+FAIL tests/integration/tasks.test.js
+  GET /tasks
+    ✓ returns 200 and [] when store is empty (43 ms)
+    ✓ returns 200 and all tasks when populated (12 ms)
+    ✓ response tasks have expected shape (15 ms)
+    ✕ ?status=in_progress returns ONLY exact matches, not in_progress_extra (7 ms)
+    ✕ ?status= returns [] (8 ms)
+    ✓ ?status=invalid_status returns [] (200, no error) (4 ms)
+    ✕ seed 11; GET ?page=1&limit=10 returns 10 items starting at seeded[0] (3 ms)
+    ✕ seed 6; GET ?page=2&limit=2 returns seeded[2] and seeded[3] (4 ms)
+    ✓ seed 5; GET ?page=2&limit=5 returns [] (page beyond last) (5 ms)
+    ✕ seed 3; GET ?limit=100 returns all 3 (7 ms)
+  GET /tasks/stats
+    ✓ returns 200 and zeros for empty store (6 ms)
+    ✓ counts statuses correctly for a mixed store (4 ms)
+    ✓ counts overdue: PAST dueDate AND status !== done (3 ms)
+    ✓ does NOT count overdue: status === done even if dueDate is past (2 ms)
+    ✓ does NOT count overdue: FUTURE dueDate (1 ms)
+    ✓ does NOT count overdue: dueDate is null (1 ms)
+  POST /tasks
+    ✓ returns 201 and the created task for {title} (3 ms)
+    ✓ returns 201 with defaults applied (2 ms)
+    ✓ returns 201 and preserves all provided fields (2 ms)
+    ✓ returns 400 when title missing (2 ms)
+    ✓ returns 400 when title is empty string (1 ms)
+    ✓ returns 400 when status is invalid (2 ms)
+    ✓ returns 400 when priority is invalid (2 ms)
+    ✓ returns 400 when dueDate is invalid (2 ms)
+    ✓ ignores unknown fields (admin: true) (3 ms)
+  PUT /tasks/:id
+    ✓ returns 200 and the updated task for a valid partial body (3 ms)
+    ✓ returns 200 and preserves fields not in body (3 ms)
+    ✓ returns 404 for nonexistent id (2 ms)
+    ✓ returns 400 when title is empty string (4 ms)
+    ✕ sending { id: attacker } does NOT change the task id (5 ms)
+    ✕ sending { createdAt: PAST } does NOT change createdAt (4 ms)
+  DELETE /tasks/:id
+    ✓ returns 204 on success and follow-up GET confirms removal (6 ms)
+    ✓ returns 404 for nonexistent id (3 ms)
+  PATCH /tasks/:id/complete
+    ✓ returns 200 and sets status=done and completedAt valid ISO (5 ms)
+    ✕ completing a high-priority task keeps priority === high (6 ms)
+    ✕ completing an already-done task does NOT change completedAt (17 ms)
+    ✓ returns 404 for nonexistent id (5 ms)
+
+  ● GET /tasks › ?status=in_progress returns ONLY exact matches, not in_progress_extra
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 1
+    Received length: 2
+    Received array:  [{"completedAt": null, "createdAt": "2026-09-28T13:02:31.071Z", "description": "", "dueDate": null, "id": "b471f382-cbd7-41fe-85f5-fdfad2b16996", "priority": "medium", "status": "in_progress", "title": "In Progress"}, {"completedAt": null, "createdAt": "2026-09-28T13:02:31.071Z", "description": "", "dueDate": null, "id": "68e12e35-229c-495e-8305-f04485e1f4f1", "priority": "medium", "status": "in_progress_extra", "title": "In Progress Extra"}]
+
+      58 |     const res = await request(app).get('/tasks').query({ status: 'in_progress' });
+      59 |     expect(res.status).toBe(200);
+    > 60 |     expect(res.body).toHaveLength(1);
+         |                      ^
+      61 |     expect(res.body[0].id).toBeDefined();
+      62 |   });
+      63 |
+
+      at Object.toHaveLength (tests/integration/tasks.test.js:60:22)
+
+  ● GET /tasks › ?status= returns []
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 22
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "completedAt": null,
+    +     "createdAt": "2026-09-28T13:02:31.090Z",
+    +     "description": "",
+    +     "dueDate": null,
+    +     "id": "35cd51a0-1074-4127-8dad-7c08ea1ebb4e",
+    +     "priority": "medium",
+    +     "status": "todo",
+    +     "title": "A",
+    +   },
+    +   Object {
+    +     "completedAt": null,
+    +     "createdAt": "2026-09-28T13:02:31.090Z",
+    +     "description": "",
+    +     "dueDate": null,
+    +     "id": "7b3bd7db-e9c8-4a33-9ce3-415425ae056e",
+    +     "priority": "medium",
+    +     "status": "todo",
+    +     "title": "B",
+    +   },
+    + ]
+
+      68 |     const res = await request(app).get('/tasks').query({ status: '' });
+      69 |     expect(res.status).toBe(200);
+    > 70 |     expect(res.body).toEqual([]);
+         |                      ^
+      71 |   });
+      72 |
+      73 |   it('?status=invalid_status returns [] (200, no error)', async () => {
+
+      at Object.toEqual (tests/integration/tasks.test.js:70:22)
+
+  ● GET /tasks › seed 11; GET ?page=1&limit=10 returns 10 items starting at seeded[0]
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 10
+    Received length: 1
+    Received array:  [{"completedAt": null, "createdAt": "2026-09-28T13:02:31.101Z", "description": "", "dueDate": null, "id": "2c18e9cd-1c83-42d7-a765-1964e1a0bd97", "priority": "medium", "status": "todo", "title": "Task 11"}]
+
+      84 |     const res = await request(app).get('/tasks').query({ page: 1, limit: 10 });
+      85 |     expect(res.status).toBe(200);
+    > 86 |     expect(res.body).toHaveLength(10);
+         |                      ^
+      87 |     expect(res.body[0].title).toBe('Task 1');
+      88 |   });
+      89 |
+
+      at Object.toHaveLength (tests/integration/tasks.test.js:86:22)
+
+  ● GET /tasks › seed 6; GET ?page=2&limit=2 returns seeded[2] and seeded[3]
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Task 3"
+    Received: "Task 5"
+
+       96 |     expect(res.status).toBe(200);
+       97 |     expect(res.body).toHaveLength(2);
+    >  98 |     expect(res.body[0].title).toBe('Task 3');
+          |                               ^
+       99 |     expect(res.body[1].title).toBe('Task 4');
+      100 |   });
+      101 |
+
+      at Object.toBe (tests/integration/tasks.test.js:98:31)
+
+  ● GET /tasks › seed 3; GET ?limit=100 returns all 3
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 3
+    Received length: 0
+    Received array:  []
+
+      115 |     const res = await request(app).get('/tasks').query({ limit: 100 });
+      116 |     expect(res.status).toBe(200);
+    > 117 |     expect(res.body).toHaveLength(3);
+          |                      ^
+      118 |   });
+      119 | });
+      120 |
+
+      at Object.toHaveLength (tests/integration/tasks.test.js:117:22)
+
+  ● PUT /tasks/:id › sending { id: attacker } does NOT change the task id
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "311f80f1-5e8c-49d3-a4f1-93f7b82bded4"
+    Received: "attacker"
+
+      273 |     const res = await request(app).put(`/tasks/${taskId}`).send({ id: 'attacker', title: 'X' });
+      274 |     expect(res.status).toBe(200);
+    > 275 |     expect(res.body.id).toBe(taskId);
+          |                         ^
+      276 |     const getRes = await request(app).get(`/tasks/${taskId}`);
+      277 |     expect(getRes.status).toBe(200);
+      278 |     expect(getRes.body.id).toBe(taskId);
+
+      at Object.toBe (tests/integration/tasks.test.js:275:25)
+
+  ● PUT /tasks/:id › sending { createdAt: PAST } does NOT change createdAt
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "2026-09-28T13:02:31.181Z"
+    Received: "2020-01-01T00:00:00.000Z"
+
+      286 |     const res = await request(app).put(`/tasks/${taskId}`).send({ createdAt: PAST });
+      287 |     expect(res.status).toBe(200);
+    > 288 |     expect(res.body.createdAt).toBe(originalCreatedAt);
+          |                                ^
+      289 |   });
+      290 | });
+      291 |
+
+      at Object.toBe (tests/integration/tasks.test.js:288:32)
+
+  ● PATCH /tasks/:id/complete › completing a high-priority task keeps priority === high
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "high"
+    Received: "medium"
+
+      326 |     const res = await request(app).patch(`/tasks/${taskId}/complete`);
+      327 |     expect(res.status).toBe(200);
+    > 328 |     expect(res.body.priority).toBe('high');
+          |                               ^
+      329 |   });
+      330 |
+      331 |   // BUG: B6 — re-completion overwrites completedAt
+
+      at Object.toBe (tests/integration/tasks.test.js:328:31)
+
+  ● PATCH /tasks/:id/complete › completing an already-done task does NOT change completedAt
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "2026-09-28T13:02:31.213Z"
+    Received: "2025-01-01T00:00:00.000Z"
+
+      341 |     jest.useRealTimers();
+      342 |
+    > 343 |     expect(second.body.completedAt).toBe(firstCompletedAt);
+          |                                     ^
+      344 |   });
+      345 |
+      346 |   it('returns 404 for nonexistent id', async () => {
+
+      at Object.toBe (tests/integration/tasks.test.js:343:37)
+
+Test Suites: 1 failed, 1 total
+Tests:       9 failed, 28 passed, 37 total
+Snapshots:   0 total
+Time:        0.901 s, estimated 2 s
+Ran all test suites matching /tests\/integration\/tasks.test.js/i.
