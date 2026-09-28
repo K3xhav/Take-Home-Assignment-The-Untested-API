@@ -216,3 +216,19 @@ bug report. Because it will.
 **Reasoning:** 32 tests, 32 passes — this gives us confidence that the validation logic is solid and we haven't introduced regressions.
 **Tradeoff:** More tests, but each test is cheap and the coverage is 100% on validation logic.
 **Study note:** When a function is pure, its domain is small. Test all boundaries, all valid cases, all invalid cases. There's no need for mocking because there is no state to manage.
+
+## DD-026: Commits Are Part of the Deliverable
+**Date:** 2026-09-28
+**Context:** AI autonomously committed 5 changes during the test-writing phase without a review step. Commits are clean, but we lost the opportunity to control the commit narrative for the reviewer.
+**Decision:** For the rest of this assignment, all AI prompts must include "DO NOT COMMIT — stop after verification and report". We review the diff, then commit ourselves with a message we've chosen.
+**Reasoning:** The git log is read by reviewers as evidence of process. Each message should be intentional: "test: add X proving Y" tells a story. A generic "add tests" message tells nothing.
+**Tradeoff:** More manual steps at commit time.
+**Study note:** In a real PR, your commit messages are the changelog for the reviewer. A good commit log reads like a well-structured bug report. An AI that commits without review is a junior engineer who pushes without a PR. Nice try, wrong process.
+
+## DD-027: Every Test File Must Have a Purpose Statement at the Top
+**Date:** 2026-09-28
+**Context:** tests/unit/validators.test.js begins with a require line and goes straight into describes. tests/unit/taskService.test.js has a comment about seed(). Neither states WHAT the file is for or WHY it exists.
+**Decision:** Add a top-of-file block comment to every test file stating: the module under test, the bugs it proves (if any), and the strategy (unit vs integration). Update both existing files in a follow-up commit.
+**Reasoning:** A reviewer opens a test file and wants to know in 10 seconds what it's testing and why. The file comment delivers that.
+**Tradeoff:** Small amount of boilerplate.
+**Study note:** Well-written test files are self-documenting. New engineers joining a team should be able to read the header and skip the body.

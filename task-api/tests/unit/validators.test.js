@@ -1,3 +1,17 @@
+/**
+ * Unit tests for src/utils/validators.js
+ *
+ * Strategy:
+ *   - Validators are pure functions: no state, no mocks, no timers.
+ *   - Every rule is tested with both a valid input (expects null) and an
+ *     invalid input (expects a non-empty string).
+ *   - Uses it.each() for repetitive cases (valid statuses, valid priorities).
+ *
+ * No bugs proven here. All 32 tests pass — validators are correct in this
+ * codebase. This file exists to lock in existing behavior as a regression
+ * guard for future changes.
+ */
+
 const { validateCreateTask, validateUpdateTask } = require('../../src/utils/validators');
 
 const VALID_STATUSES = ['todo', 'in_progress', 'done'];

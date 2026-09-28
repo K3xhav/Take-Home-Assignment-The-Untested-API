@@ -1,3 +1,22 @@
+/**
+ * Unit tests for src/services/taskService.js
+ *
+ * Strategy:
+ *   - Every test seeds state via the public create() API (see `seed()` helper).
+ *   - beforeEach calls taskService._reset() to guarantee isolation.
+ *   - Bug-detector tests are tagged with `// BUG: Bn — ...` on the line
+ *     directly above their `it(...)` block.
+ *
+ * Bugs proven by this file (pre-fix failures):
+ *   B1 — getPaginated uses page * limit instead of (page - 1) * limit
+ *   B2 — getByStatus uses .includes() instead of ===
+ *   B3 — completeTask overwrites priority to 'medium'
+ *   B4 — update() spreads any incoming field, allowing id/createdAt overwrite
+ *   B6 — completeTask has no check for already-done tasks
+ *
+ * Pre-fix run output is saved to: docs/pre-fix-test-run.txt
+ */
+
 const taskService = require('../../src/services/taskService');
 
 const PAST = '2020-01-01T00:00:00.000Z';

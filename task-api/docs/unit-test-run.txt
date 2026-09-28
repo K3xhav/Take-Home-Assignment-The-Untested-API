@@ -1,0 +1,206 @@
+FAIL tests/unit/taskService.test.js
+  ● taskService › getByStatus › returns only exact status matches
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 1
+    Received length: 2
+    Received array:  [{"completedAt": null, "createdAt": "2026-09-28T12:57:39.615Z", "description": "", "dueDate": null, "id": "360738e1-d7df-4c02-a6f2-e5fad3916a38", "priority": "medium", "status": "in_progress", "title": "In Progress"}, {"completedAt": null, "createdAt": "2026-09-28T12:57:39.615Z", "description": "", "dueDate": null, "id": "dd665d24-3095-4d25-815e-8065937c8ed7", "priority": "medium", "status": "in_progress_extra", "title": "In Progress Extra"}]
+
+      87 |       ]);
+      88 |       const filtered = taskService.getByStatus('in_progress');
+    > 89 |       expect(filtered).toHaveLength(1);
+         |                        ^
+      90 |       expect(filtered[0].id).toBe(inProg.id);
+      91 |     });
+      92 |
+
+      at Object.toHaveLength (tests/unit/taskService.test.js:89:24)
+
+  ● taskService › getByStatus › returns [] when status is empty string
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 22
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "completedAt": null,
+    +     "createdAt": "2026-09-28T12:57:39.630Z",
+    +     "description": "",
+    +     "dueDate": null,
+    +     "id": "bb189f94-2d6a-4c4e-95f3-1674ce40d601",
+    +     "priority": "medium",
+    +     "status": "todo",
+    +     "title": "A",
+    +   },
+    +   Object {
+    +     "completedAt": null,
+    +     "createdAt": "2026-09-28T12:57:39.630Z",
+    +     "description": "",
+    +     "dueDate": null,
+    +     "id": "2b0c76f2-407e-480f-be5b-6972fb4f0c05",
+    +     "priority": "medium",
+    +     "status": "todo",
+    +     "title": "B",
+    +   },
+    + ]
+
+      94 |     it('returns [] when status is empty string', () => {
+      95 |       seed([{ title: 'A' }, { title: 'B' }]);
+    > 96 |       expect(taskService.getByStatus('')).toEqual([]);
+         |                                           ^
+      97 |     });
+      98 |
+      99 |     it('returns [] when no tasks match the status', () => {
+
+      at Object.toEqual (tests/unit/taskService.test.js:96:43)
+
+  ● taskService › getPaginated › page 1, limit 10 returns the first 10 items (indexes 0-9)
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 10
+    Received length: 1
+    Received array:  [{"completedAt": null, "createdAt": "2026-09-28T12:57:39.635Z", "description": "", "dueDate": null, "id": "48e74424-85d2-4cb5-902d-42b990e3cdf6", "priority": "medium", "status": "todo", "title": "Task 11"}]
+
+      111 |       );
+      112 |       const result = taskService.getPaginated(1, 10);
+    > 113 |       expect(result).toHaveLength(10);
+          |                      ^
+      114 |       expect(result[0].id).toBe(seeded[0].id);
+      115 |       expect(result[9].id).toBe(seeded[9].id);
+      116 |     });
+
+      at Object.toHaveLength (tests/unit/taskService.test.js:113:22)
+
+  ● taskService › getPaginated › page 2, limit 3 returns indexes 3,4,5
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 3
+    Received length: 0
+    Received array:  []
+
+      123 |       ]);
+      124 |       const result = taskService.getPaginated(2, 3);
+    > 125 |       expect(result).toHaveLength(3);
+          |                      ^
+      126 |       expect(result[0].id).toBe(seeded[3].id);
+      127 |       expect(result[1].id).toBe(seeded[4].id);
+      128 |       expect(result[2].id).toBe(seeded[5].id);
+
+      at Object.toHaveLength (tests/unit/taskService.test.js:125:22)
+
+  ● taskService › getPaginated › page 2, limit 2 returns indexes 2,3
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "7fa2a586-f6ce-4727-b742-97b43ed77ec7"
+    Received: "0647a71c-1814-47af-943a-d3bad225e590"
+
+      137 |       const result = taskService.getPaginated(2, 2);
+      138 |       expect(result).toHaveLength(2);
+    > 139 |       expect(result[0].id).toBe(seeded[2].id);
+          |                            ^
+      140 |       expect(result[1].id).toBe(seeded[3].id);
+      141 |     });
+      142 |
+
+      at Object.toBe (tests/unit/taskService.test.js:139:28)
+
+  ● taskService › getPaginated › limit > collection size returns all items from index 0
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 3
+    Received length: 0
+    Received array:  []
+
+      152 |     it('limit > collection size returns all items from index 0', () => {
+      153 |       seed([{ title: 'T1' }, { title: 'T2' }, { title: 'T3' }]);
+    > 154 |       expect(taskService.getPaginated(1, 100)).toHaveLength(3);
+          |                                                ^
+      155 |     });
+      156 |   });
+      157 |
+
+      at Object.toHaveLength (tests/unit/taskService.test.js:154:48)
+
+  ● taskService › update › does not allow the client to overwrite id
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "addfa50c-050d-4eae-9192-9bf2df236380"
+    Received: "attacker"
+
+      197 |       const [t] = seed([{ title: 'Original' }]);
+      198 |       const updated = taskService.update(t.id, { id: 'attacker', title: 'X' });
+    > 199 |       expect(updated.id).toBe(t.id);
+          |                          ^
+      200 |       expect(taskService.findById(t.id)).toBeDefined();
+      201 |       expect(taskService.findById('attacker')).toBeUndefined();
+      202 |     });
+
+      at Object.toBe (tests/unit/taskService.test.js:199:26)
+
+  ● taskService › update › does not allow the client to overwrite createdAt
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "2026-09-28T12:57:39.648Z"
+    Received: "2020-01-01T00:00:00.000Z"
+
+      207 |       const originalCreatedAt = t.createdAt;
+      208 |       const updated = taskService.update(t.id, { createdAt: PAST });
+    > 209 |       expect(updated.createdAt).toBe(originalCreatedAt);
+          |                                 ^
+      210 |       expect(taskService.findById(t.id).createdAt).toBe(originalCreatedAt);
+      211 |     });
+      212 |
+
+      at Object.toBe (tests/unit/taskService.test.js:209:33)
+
+  ● taskService › completeTask › preserves original priority when completing a high-priority task
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "high"
+    Received: "medium"
+
+      249 |       const [t] = seed([{ title: 'High Priority', priority: 'high' }]);
+      250 |       const updated = taskService.completeTask(t.id);
+    > 251 |       expect(updated.priority).toBe('high');
+          |                                ^
+      252 |     });
+      253 |
+      254 |     // BUG: B6 — completeTask has no check for already-done tasks.
+
+      at Object.toBe (tests/unit/taskService.test.js:251:32)
+
+  ● taskService › completeTask › does not overwrite completedAt when task is already done
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "2025-01-01T00:00:00.000Z"
+    Received: "2025-01-01T00:00:01.000Z"
+
+      268 |
+      269 |       jest.useRealTimers();
+    > 270 |       expect(second.completedAt).toBe(firstCompletedAt);
+          |                                  ^
+      271 |     });
+      272 |
+      273 |     it('sets status to done and completedAt to a valid ISO string', () => {
+
+      at Object.toBe (tests/unit/taskService.test.js:270:34)
+
+PASS tests/unit/validators.test.js
+
+Test Suites: 1 failed, 1 passed, 2 total
+Tests:       10 failed, 57 passed, 67 total
+Snapshots:   0 total
+Time:        0.398 s, estimated 1 s
+Ran all test suites matching /tests\/unit\//i.
