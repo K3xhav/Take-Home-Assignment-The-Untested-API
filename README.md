@@ -1,5 +1,16 @@
 # Take-Home Assignment — The Untested API
 
+> **Submission by:** Keshav (K3xhav)
+> **Repo:** https://github.com/K3xhav/Take-Home-Assignment-The-Untested-API
+> **Live deployment:** [add after Render deploy]
+
+> **Quick links:**
+> - [Bug report](./task-api/BUGS.md)
+> - [Submission notes](./task-api/NOTES.md)
+> - [Design decisions log](./task-api/DESIGN_DECISIONS.md)
+>
+> **Test results:** 118 tests, 106 passing, 12 proving 5 documented bugs. Coverage: 97.45%.
+
 A 2-day take-home assignment. You'll read unfamiliar code, write tests, track down bugs, and ship a small feature.
 
 Read **[ASSIGNMENT.md](./ASSIGNMENT.md)** for the full brief before you start.
