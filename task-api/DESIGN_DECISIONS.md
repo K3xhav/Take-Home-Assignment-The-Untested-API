@@ -300,3 +300,38 @@ incorrectly. The DO-NOT-COMMIT gate is what saved us here.
 **Tradeoff:** We add a manual review step to every AI code edit.
 **Study note:** Never let an AI commit source code. Ever. The diff is the
 contract. If you haven't read the diff line-by-line, it hasn't happened.
+
+## DD-032: Post-Fix Run Is the Counterpart to the Pre-Fix Run
+**Date:** 2026-09-28
+**Context:** We now have two full test runs saved:
+  - docs/pre-fix-test-run.txt   (19 failed, 53 passed)
+  - docs/post-fix-test-run.txt  (12 failed, 60 passed)
+  The 7-test delta maps exactly to the B1 pagination tests.
+**Decision:** Submit BOTH runs. The bug report will reference pre-fix
+numbers; the fix section will reference post-fix numbers. The delta is
+the proof the fix works and doesn't touch unrelated tests.
+**Reasoning:** A fix that only makes a red test green is half the story.
+The other half is: "and nothing else changed." Two saved runs prove both.
+**Tradeoff:** Two files in the repo instead of one.
+**Study note:** In a real PR review, the reviewer asks: "Did this fix
+change anything unexpected?" The answer is the diff between pre-fix and
+post-fix test runs. Preserve both.
+
+## DD-033: AI Edits Leave "Ghost Lines" — Always Grep After Edit
+**Date:** 2026-09-28
+**Context:** This is the SECOND time in a row the AI left the old line in
+place when applying an edit:
+  1. pagination fix: two `const offset` lines (SyntaxError)
+  2. validators: duplicate `module.exports` (functional but misleading)
+  3. routes/tasks.js: duplicate destructured `const` (SyntaxError)
+**Decision:** Every AI source-code edit must be followed by:
+  - node -c <file> for syntax
+  - grep for the specific identifier to confirm EXACTLY ONE occurrence
+Never trust the AI's edit summary — read the diff.
+**Reasoning:** LLM edits are append-biased: they add the new code but often
+forget to delete the old. Any edit that changes a single line is at high
+risk of this failure mode.
+**Tradeoff:** 2 verification commands per edit.
+**Study note:** Every AI code-editing tool has this failure mode. The
+solution is not "better AI" — it's mechanical verification after every
+edit. `node -c` and `grep -c` take 3 seconds combined.

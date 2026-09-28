@@ -321,4 +321,42 @@ describe('taskService', () => {
       expect(taskService.getStats().overdue).toBe(0);
     });
   });
+
+  describe('assignTask', () => {
+    it('assigns an assignee to a task', () => {
+      const [t] = seed([{ title: 'To Assign' }]);
+      const result = taskService.assignTask(t.id, 'Alice');
+      expect(result).toBeDefined();
+      expect(result.assignee).toBe('Alice');
+    });
+
+    it('persists the assignment in the store', () => {
+      const [t] = seed([{ title: 'To Assign' }]);
+      taskService.assignTask(t.id, 'Bob');
+      const found = taskService.findById(t.id);
+      expect(found.assignee).toBe('Bob');
+    });
+
+    it('overwrites an existing assignee on re-assignment', () => {
+      const [t] = seed([{ title: 'To Reassign' }]);
+      taskService.assignTask(t.id, 'First');
+      taskService.assignTask(t.id, 'Second');
+      const found = taskService.findById(t.id);
+      expect(found.assignee).toBe('Second');
+    });
+
+    it('returns null for a nonexistent id', () => {
+      const result = taskService.assignTask('nonexistent', 'Alice');
+      expect(result).toBeNull();
+    });
+
+    it('does NOT modify other fields on assign', () => {
+      const [t] = seed([{ title: 'Stable', status: 'todo', priority: 'low' }]);
+      taskService.assignTask(t.id, 'Assignee');
+      const found = taskService.findById(t.id);
+      expect(found.status).toBe('todo');
+      expect(found.priority).toBe('low');
+      expect(found.title).toBe('Stable');
+    });
+  });
 });

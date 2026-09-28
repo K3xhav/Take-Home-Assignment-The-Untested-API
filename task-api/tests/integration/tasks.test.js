@@ -349,3 +349,80 @@ describe('PATCH /tasks/:id/complete', () => {
     expect(res.body).toHaveProperty('error');
   });
 });
+
+// FEATURE: assign
+describe('PATCH /tasks/:id/assign', () => {
+  it('returns 200 and the updated task for a valid body', async () => {
+    const created = await request(app).post('/tasks').send({ title: 'To Assign' });
+    const taskId = created.body.id;
+    const res = await request(app).patch(`/tasks/${taskId}/assign`).send({ assignee: 'Alice' });
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('assignee');
+    expect(res.body.assignee).toBe('Alice');
+  });
+
+  it('returns 400 when assignee is missing', async () => {
+    const created = await request(app).post('/tasks').send({ title: 'No Assignee' });
+    const taskId = created.body.id;
+    const res = await request(app).patch(`/tasks/${taskId}/assign`).send({});
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty('error');
+  });
+
+  it('returns 400 when assignee is empty string', async () => {
+    const created = await request(app).post('/tasks').send({ title: 'Empty' });
+    const taskId = created.body.id;
+    const res = await request(app).patch(`/tasks/${taskId}/assign`).send({ assignee: '' });
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty('error');
+  });
+
+  it('returns 400 when assignee is whitespace only', async () => {
+    const created = await request(app).post('/tasks').send({ title: 'Whitespace' });
+    const taskId = created.body.id;
+    const res = await request(app).patch(`/tasks/${taskId}/assign`).send({ assignee: '   ' });
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty('error');
+  });
+
+  it('returns 400 when assignee is not a string', async () => {
+    const created = await request(app).post('/tasks').send({ title: 'Number' });
+    const taskId = created.body.id;
+    const res = await request(app).patch(`/tasks/${taskId}/assign`).send({ assignee: 123 });
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty('error');
+  });
+
+  it('returns 404 for nonexistent id', async () => {
+    const res = await request(app).patch('/tasks/nonexistent/assign').send({ assignee: 'Alice' });
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty('error');
+  });
+
+  it('re-assigning overwrites the previous assignee', async () => {
+    const created = await request(app).post('/tasks').send({ title: 'Reassign' });
+    const taskId = created.body.id;
+    await request(app).patch(`/tasks/${taskId}/assign`).send({ assignee: 'First' });
+    const res = await request(app).patch(`/tasks/${taskId}/assign`).send({ assignee: 'Second' });
+    expect(res.status).toBe(200);
+    expect(res.body.assignee).toBe('Second');
+  });
+
+  it('the assigned value is trimmed', async () => {
+    const created = await request(app).post('/tasks').send({ title: 'Trimmed' });
+    const taskId = created.body.id;
+    const res = await request(app).patch(`/tasks/${taskId}/assign`).send({ assignee: '  Alice  ' });
+    expect(res.status).toBe(200);
+    expect(res.body.assignee).toBe('Alice');
+  });
+
+  it('GET /tasks afterwards shows the assignee field', async () => {
+    const created = await request(app).post('/tasks').send({ title: 'List Check' });
+    const taskId = created.body.id;
+    await request(app).patch(`/tasks/${taskId}/assign`).send({ assignee: 'Bob' });
+    const res = await request(app).get('/tasks');
+    const task = res.body.find((t) => t.id === taskId);
+    expect(task).toHaveProperty('assignee');
+    expect(task.assignee).toBe('Bob');
+  });
+});
