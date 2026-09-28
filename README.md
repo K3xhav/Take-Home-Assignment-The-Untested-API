@@ -2,7 +2,8 @@
 
 > **Submission by:** Keshav (K3xhav)
 > **Repo:** https://github.com/K3xhav/Take-Home-Assignment-The-Untested-API
-> **Live deployment:** [add after Render deploy]
+> **Live deployment:** https://untested-api-keshav.onrender.com
+> **Free tier — first request may take ~30s to wake from sleep.**
 
 > **Quick links:**
 > - [Bug report](./task-api/BUGS.md)
