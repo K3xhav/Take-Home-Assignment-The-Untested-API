@@ -1,9 +1,9 @@
-# Take-Home Assignment — The Untested API
+# Take-Home Assignment - The Untested API
 
 > **Submission by:** Keshav (K3xhav)
 > **Repo:** https://github.com/K3xhav/Take-Home-Assignment-The-Untested-API
 > **Live deployment:** https://untested-api-keshav.onrender.com
-> **Free tier — first request may take ~30s to wake from sleep.**
+> **Free tier - first request may take ~30s to wake from sleep.**
 
 > **Quick links:**
 > - [Bug report](./task-api/BUGS.md)
@@ -20,7 +20,7 @@ Read **[ASSIGNMENT.md](./ASSIGNMENT.md)** for the full brief before you start.
 
 ## A note on AI tools
 
-You're welcome to use AI tools. What we're evaluating is your ability to read and reason about unfamiliar code — so your submission should reflect your own understanding, not just generated output.
+You're welcome to use AI tools. What we're evaluating is your ability to read and reason about unfamiliar code - so your submission should reflect your own understanding, not just generated output.
 
 Concretely:
 - For each bug you report: include where in the code it lives and why it happens
@@ -60,7 +60,7 @@ task-api/
   tests/                    # Your tests go here
   package.json
   jest.config.js
-  ASSIGNMENT.md               # Full brief — read this first
+  ASSIGNMENT.md               # Full brief - read this first
 ```
 
 > The data store is in-memory. It resets every time the server restarts.
@@ -126,10 +126,10 @@ curl -X PATCH http://localhost:3000/tasks/<id>/assign \
 
 See [ASSIGNMENT.md](./ASSIGNMENT.md) for full submission requirements. At minimum, include:
 
-- **Test files** — covering the endpoints and edge cases you identified
-- **Bug report** — what you found, where in the code, and why it's a bug (not just symptoms)
-- **At least one fix** — with a note on your approach
-- **`PATCH /tasks/:id/assign` implementation** — plus a short explanation of any design decisions (validation, edge cases, etc.)
+- **Test files** - covering the endpoints and edge cases you identified
+- **Bug report** - what you found, where in the code, and why it's a bug (not just symptoms)
+- **At least one fix** - with a note on your approach
+- **`PATCH /tasks/:id/assign` implementation** - plus a short explanation of any design decisions (validation, edge cases, etc.)
 
 ---
 

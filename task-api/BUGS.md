@@ -1,4 +1,4 @@
-# Bug Report — The Untested API
+# Bug Report - The Untested API
 
 **Author:** Code audit (take-home assignment)
 **Date:** 2026-09-28
@@ -11,7 +11,7 @@
 
 ---
 
-## Bug #1 (B1) — Pagination Offset Calculation
+## Bug #1 (B1) - Pagination Offset Calculation
 
 **Severity:** High
 **Location:** `src/services/taskService.js:12`
@@ -32,7 +32,7 @@ Changed line 12 from `const offset = page * limit;` to `const offset = (page - 1
 
 ---
 
-## Bug #2 (B2) — Status Filter Uses Substring Match
+## Bug #2 (B2) - Status Filter Uses Substring Match
 
 **Severity:** Medium
 **Location:** `src/services/taskService.js:9`
@@ -53,7 +53,7 @@ Not applied. Would change line 9 from `tasks.filter((t) => t.status.includes(sta
 
 ---
 
-## Bug #3 (B3) — completeTask Overwrites Priority
+## Bug #3 (B3) - completeTask Overwrites Priority
 
 **Severity:** Medium
 **Location:** `src/services/taskService.js:67-72`
@@ -72,7 +72,7 @@ Not applied. Would remove the `priority: 'medium'` line from the updated object.
 
 ---
 
-## Bug #4 (B4) — Field Injection in update()
+## Bug #4 (B4) - Field Injection in update()
 
 **Severity:** High
 **Location:** `src/services/taskService.js:50`
@@ -82,7 +82,7 @@ Not applied. Would remove the `priority: 'medium'` line from the updated object.
 `update(id, fields)` spreads `...fields` over the existing task: `{ ...tasks[index], ...fields }`. This allows clients to overwrite `id`, `createdAt`, `completedAt`, or any other internal field by including it in the PUT body.
 
 ### Why it's a bug
-Clients can hijack task IDs, forge creation timestamps, or tamper with completion dates. This is a data integrity vulnerability — even if it doesn't break the system now, it's an exploit path that could be used to corrupt the in-memory store.
+Clients can hijack task IDs, forge creation timestamps, or tamper with completion dates. This is a data integrity vulnerability - even if it doesn't break the system now, it's an exploit path that could be used to corrupt the in-memory store.
 
 ### Evidence
 Pre-fix: Sending `{ id: 'attacker', title: 'X' }` in a PUT request changes the task's id from the original UUID to `'attacker'`.
@@ -92,7 +92,7 @@ Not applied. Would require explicit field allow-listing in the update function.
 
 ---
 
-## Bug #5 (B5) — parseInt(page) || 1 Masks Invalid Input
+## Bug #5 (B5) - parseInt(page) || 1 Masks Invalid Input
 
 **Severity:** Low
 **Location:** `src/routes/tasks.js:20`
@@ -111,7 +111,7 @@ Not applied. Would add input validation and error handling for page/limit parame
 
 ---
 
-## Bug #6 (B6) — completeTask Overwrites completedAt on Re-completion
+## Bug #6 (B6) - completeTask Overwrites completedAt on Re-completion
 
 **Severity:** Medium
 **Location:** `src/services/taskService.js:63-77`
@@ -120,10 +120,10 @@ Not applied. Would add input validation and error handling for page/limit parame
 `completeTask(id)` does not check if the task is already `done`. It unconditionally sets `completedAt = new Date().toISOString()`, overwriting any existing completion timestamp.
 
 ### Why it's a bug
-Completing an already-completed task should be idempotent — the state should not change. Instead, it silently mutates `completedAt`, which is incorrect behavior.
+Completing an already-completed task should be idempotent - the state should not change. Instead, it silently mutates `completedAt`, which is incorrect behavior.
 
 ### Evidence
-Pre-fix: Calling `completeTask()` twice on the same task sets `completedAt` to different timestamps (or the same if within the same millisecond — a flaky test).
+Pre-fix: Calling `completeTask()` twice on the same task sets `completedAt` to different timestamps (or the same if within the same millisecond - a flaky test).
 
 ### Fix
 Not applied. Would add a check: `if (task.status === 'done') return task;` before the update.
@@ -132,7 +132,7 @@ Not applied. Would add a check: `if (task.status === 'done') return task;` befor
 
 ## Tests That Prove Bugs
 
-All bug-detector tests are tagged `// BUG: Bn — <summary>` on the line directly above the `it(...)` call.
+All bug-detector tests are tagged `// BUG: Bn - <summary>` on the line directly above the `it(...)` call.
 
 ### Unit tests (tests/unit/taskService.test.js)
 | Bug | Test name | Pre-fix result |
@@ -178,18 +178,18 @@ The 7 flipped tests are all B1 tests. The 12 remaining failures prove the 5 unfi
 
 ## Files Modified
 
-- `src/services/taskService.js` — B1 fix (offset calculation) + `assignTask()` function
-- `src/utils/validators.js` — `validateAssignTask()` function
-- `src/routes/tasks.js` — `PATCH /tasks/:id/assign` route + `validateAssignTask` import
-- `tests/unit/taskService.test.js` — 5 new assign tests + bug-detector tests
-- `tests/integration/tasks.test.js` — 9 new assign tests + bug-detector tests
-- `docs/pre-fix-test-run.txt` — Evidence artifact
-- `docs/post-fix-test-run.txt` — Evidence artifact
-- `docs/coverage.txt` — Coverage evidence
-- `docs/post-fix-coverage.txt` — Coverage evidence
-- `docs/post-feature-coverage.txt` — Coverage after feature
-- `docs/post-feature-test-run.txt` — Test run after feature
-- `DESIGN_DECISIONS.md` — 33 design decisions logged
+- `src/services/taskService.js` - B1 fix (offset calculation) + `assignTask()` function
+- `src/utils/validators.js` - `validateAssignTask()` function
+- `src/routes/tasks.js` - `PATCH /tasks/:id/assign` route + `validateAssignTask` import
+- `tests/unit/taskService.test.js` - 5 new assign tests + bug-detector tests
+- `tests/integration/tasks.test.js` - 9 new assign tests + bug-detector tests
+- `docs/pre-fix-test-run.txt` - Evidence artifact
+- `docs/post-fix-test-run.txt` - Evidence artifact
+- `docs/coverage.txt` - Coverage evidence
+- `docs/post-fix-coverage.txt` - Coverage evidence
+- `docs/post-feature-coverage.txt` - Coverage after feature
+- `docs/post-feature-test-run.txt` - Test run after feature
+- `DESIGN_DECISIONS.md` - 33 design decisions logged
 
 ---
 
@@ -201,7 +201,7 @@ B2 (status filter), B3 (priority overwrite), B4 (field injection), B5 (input mas
 
 ## Feature Added
 
-`PATCH /tasks/:id/assign` — assigns a task to a user. Accepts `{ "assignee": "string" }`. Returns 200 with updated task on success, 400 on validation failure, 404 if task not found. Validation: assignee is required, must be a non-empty string after trim. Re-assignment is allowed.
+`PATCH /tasks/:id/assign` - assigns a task to a user. Accepts `{ "assignee": "string" }`. Returns 200 with updated task on success, 400 on validation failure, 404 if task not found. Validation: assignee is required, must be a non-empty string after trim. Re-assignment is allowed.
 
 Test coverage: 5 unit tests + 9 integration tests, all passing.
 

@@ -6,27 +6,27 @@
 ASSIGNMENT.md and src/services/taskService.js both use "todo | in_progress | done".
 **Decision:** Treat the code as source of truth. Treat README as a documentation bug.
 **Reasoning:** Code is what runs. The other two artifacts agree with each other
-and with the code — README is the outlier.
+and with the code - README is the outlier.
 **Tradeoff:** If the intent was to change the enum, we'd need a migration. But
 no migration code exists, so this is a docs bug.
 **Study note:** Always cross-check docs vs code. Doc drift is one of the most
 common real-world bugs in APIs.
 
-## DD-002: Bug Report Discipline — Evidence Over Claims
+## DD-002: Bug Report Discipline - Evidence Over Claims
 **Date:** 2026-09-28
 **Context:** AI-generated code audits often hallucinate bugs (e.g., claimed
 the error handler doesn't set Content-Type, which Express does automatically).
 **Decision:** Only report bugs we can prove via (a) direct code read AND
 (b) a failing test OR a one-line explanation of the incorrect behavior.
 Borderline issues go into "Observations / Hardening Suggestions", not "Bugs".
-**Reasoning:** The assignment explicitly says "not just symptoms" — root cause
+**Reasoning:** The assignment explicitly says "not just symptoms" - root cause
 required. Weak bug reports damage credibility more than they help.
 **Tradeoff:** We may report fewer bugs than a rival submission, but ours will
 survive scrutiny.
 **Study note:** In interviews, "I found 3 solid bugs" > "I found 10 bugs"
 when the interviewer can only verify 2 of the 10.
 
-## DD-003: Test Strategy — Behavior Over Implementation
+## DD-003: Test Strategy - Behavior Over Implementation
 **Date:** 2026-09-28
 **Context:** ASSIGNMENT.md explicitly says "Tests should test behavior, not
 implementation details."
@@ -36,11 +36,11 @@ return values. We do NOT assert on internal variables or private helpers.
 **Reasoning:** Behavior tests survive refactors; implementation tests break
 when you rename a variable. This is the industry standard.
 **Tradeoff:** Slightly harder to reach 80% coverage on pure-behavior tests,
-but we will — because the service surface is small.
+but we will - because the service surface is small.
 **Study note:** If you ever refactor taskService and your tests still pass,
 you wrote behavior tests correctly.
 
-## DD-004: Bug Report Scope — Injection > Missing Validation
+## DD-004: Bug Report Scope - Injection > Missing Validation
 **Date:** 2026-09-28
 **Context:** First AI pass flagged "missing UUID validation" as a bug. Raw code review
 revealed a stronger issue: `update()` spreads `...fields` into the task, allowing
@@ -64,10 +64,10 @@ contract. Aggressive fixes risk breaking reviewer expectations.
 **Tradeoff:** The bug report explains the risk; the fix in Part B stays
 focused on one high-confidence bug (pagination).
 **Study note:** When you spot a design weakness that isn't strictly broken,
-report it as a bug but fix it separately — or not at all. Separating the
+report it as a bug but fix it separately - or not at all. Separating the
 discovery from the remediation is a senior move.
 
-## DD-006: We Fix Pagination, Not Priority Overwrite — Here's Why
+## DD-006: We Fix Pagination, Not Priority Overwrite - Here's Why
 **Date:** 2026-09-28
 **Context:** Assignment requires "fix ONE bug." We have 5 candidates.
 **Decision:** Fix **Bug #1 (pagination)**. Reason: (a) highest user impact,
@@ -76,25 +76,25 @@ change (`page` → `page - 1`), (d) reviewers can verify it in 10 seconds.
 **Reasoning:** We want the fix to *teach the reviewer something about us*. A
 clean one-line fix with a test that fails before and passes after is the
 strongest possible signal.
-**Tradeoff:** We leave 4 bugs unfixed. That's fine — the assignment says fix
+**Tradeoff:** We leave 4 bugs unfixed. That's fine - the assignment says fix
 one. Documenting the others shows we found them.
 **Study note:** "Which bug would you fix first?" is a standard interview
 question. Your answer should weigh impact × fixability × risk. Pagination
 wins on all three.
 
-## DD-007: Bug #6 Discovered — completeTask Overwrites completedAt
+## DD-007: Bug #6 Discovered - completeTask Overwrites completedAt
 **Date:** 2026-09-28
 **Context:** AI blueprint claimed completeTask returns null on already-completed
-tasks. Raw code (taskService.js:63-77) has NO such check — it silently re-completes
+tasks. Raw code (taskService.js:63-77) has NO such check - it silently re-completes
 and overwrites `completedAt`.
 **Decision:** Report as Bug #6. Rewrite the "already completed" test to prove
 this behavior and mark it as a failing test pre-fix.
-**Reasoning:** This is a real, provable, silent data mutation — same class as
+**Reasoning:** This is a real, provable, silent data mutation - same class as
 Bug #3. Together they show completeTask has no state-awareness.
 **Tradeoff:** We now have 6 bugs. We still only fix one (pagination). The bug
 report becomes richer.
 **Study note:** AI summaries often hallucinate "correct" behavior. Always read
-the raw code — the bugs live in the gap between what the code does and what
+the raw code - the bugs live in the gap between what the code does and what
 the AI assumes it does.
 
 ## DD-008: Empty-String Filter Is a Headline Bug, Not a Footnote
@@ -105,7 +105,7 @@ always true in the wrong direction (`'anything'.includes('')` === true).
 with it in the bug report as a one-line demonstration.
 **Reasoning:** Reviewers scan for "aha" moments. A filter that returns
 everything when given nothing is a perfect 5-second demo.
-**Tradeoff:** None — it's free credibility.
+**Tradeoff:** None - it's free credibility.
 **Study note:** Bugs with a memorable demo are worth 3 bugs without one.
 
 ## DD-009: Don't Contort Tests to Reach Coverage on app.js
@@ -128,7 +128,7 @@ seed() helper (pushed to a local array, ignored its argument), duplicate
 const declarations (SyntaxError), Jasmine-only matchers (toBeTrue/toBeFalse),
 and hallucinated task IDs in assertions.
 **Decision:** Regenerate the file with a stricter prompt that forbids these
-patterns explicitly. Do NOT ask the AI to "fix" the previous output — the
+patterns explicitly. Do NOT ask the AI to "fix" the previous output - the
 failure modes are structural.
 **Reasoning:** Iterative patching of bad generations compounds errors. Clean
 regeneration with constraints is faster and produces a more coherent file.
@@ -139,10 +139,10 @@ has ≤2 and they're local, patch. This heuristic saves hours over a project.
 ## DD-011: Bug-Catching Tests Must Diverge Under Bug vs. Fix
 **Date:** 2026-09-28
 **Context:** Test "page beyond last page returns []" passed under both the buggy
-and the fixed pagination logic — it didn't actually prove B1.
+and the fixed pagination logic - it didn't actually prove B1.
 **Decision:** Every test tagged `// BUG: Bn` must produce a DIFFERENT result
 under buggy vs. fixed code. If the assertions pass in both, it's a regression
-test — relabel it accordingly, or replace it with a divergent case.
+test - relabel it accordingly, or replace it with a divergent case.
 **Reasoning:** The reviewer will run our tests against the buggy code, expect
 specific failures, and match them against our bug report. A "bug test" that
 passes pre-fix invalidates the bug report.
@@ -157,7 +157,7 @@ guards against future regressions. Know which one you're writing.
 task objects including `status: 'in_progress_extra'` and `completedAt: PAST`.
 `create()` doesn't accept `completedAt`, so the state we thought we set up
 wasn't real.
-**Decision:** Seed ONLY via `taskService.create()` and `.update()` — the
+**Decision:** Seed ONLY via `taskService.create()` and `.update()` - the
 public API. If a test needs a task in a specific state, drive it there
 using the same functions a real user would.
 **Reasoning:** (a) exercises more of the code under test, (b) can't be fooled
@@ -166,7 +166,7 @@ by fields that `create()` silently ignores, (c) makes setup failures visible.
 **Study note:** Tests that reach into private state are fragile. Tests that
 build state via public APIs document the system's real contract.
 
-## DD-013: Bug Comment Placement — Above `it()`, Not Inside
+## DD-013: Bug Comment Placement - Above `it()`, Not Inside
 **Date:** 2026-09-28
 **Context:** AI keeps putting `// BUG: B2` inside the `it('...')` string
 literal, which makes the comment part of the test name. Useless for scanning
@@ -179,12 +179,12 @@ the Jest output. Both must be readable independently.
 **Study note:** Metadata (bug IDs, issue links, ticket refs) belongs in
 comments, not test names.
 
-## DD-023: This Is a Signed Receipt — Preserve It
+## DD-023: This Is a Signed Receipt - Preserve It
 **Date:** 2026-09-28
 **Context:** Full pre-fix test run produced exactly 10 failures, each one
 proving a specific bug with a specific expected-vs-received diff.
 **Decision:** Save this output verbatim to task-api/docs/pre-fix-test-run.txt.
-Reference it from the bug report with line numbers. Never regenerate it —
+Reference it from the bug report with line numbers. Never regenerate it -
 the timestamped output is the artifact.
 **Reasoning:** A bug report that says "the code is broken" is worthless.
 A bug report that says "test X fails, here is the exact diff" is
@@ -213,14 +213,14 @@ bug report. Because it will.
 **Date:** 2026-09-28
 **Context:** Validators are pure, stateless functions with no side effects. They are the simplest test targets in any codebase.
 **Decision:** Write exhaustive positive/negative tests for each validation rule. Never mock anything, never use timers. If any test fails, it's a BUG (B7, B8...).
-**Reasoning:** 32 tests, 32 passes — this gives us confidence that the validation logic is solid and we haven't introduced regressions.
+**Reasoning:** 32 tests, 32 passes - this gives us confidence that the validation logic is solid and we haven't introduced regressions.
 **Tradeoff:** More tests, but each test is cheap and the coverage is 100% on validation logic.
 **Study note:** When a function is pure, its domain is small. Test all boundaries, all valid cases, all invalid cases. There's no need for mocking because there is no state to manage.
 
 ## DD-026: Commits Are Part of the Deliverable
 **Date:** 2026-09-28
 **Context:** AI autonomously committed 5 changes during the test-writing phase without a review step. Commits are clean, but we lost the opportunity to control the commit narrative for the reviewer.
-**Decision:** For the rest of this assignment, all AI prompts must include "DO NOT COMMIT — stop after verification and report". We review the diff, then commit ourselves with a message we've chosen.
+**Decision:** For the rest of this assignment, all AI prompts must include "DO NOT COMMIT - stop after verification and report". We review the diff, then commit ourselves with a message we've chosen.
 **Reasoning:** The git log is read by reviewers as evidence of process. Each message should be intentional: "test: add X proving Y" tells a story. A generic "add tests" message tells nothing.
 **Tradeoff:** More manual steps at commit time.
 **Study note:** In a real PR, your commit messages are the changelog for the reviewer. A good commit log reads like a well-structured bug report. An AI that commits without review is a junior engineer who pushes without a PR. Nice try, wrong process.
@@ -236,13 +236,13 @@ bug report. Because it will.
 ## DD-028: Integration Tests Must Match the Actual API Surface
 **Date:** 2026-09-28
 **Context:** Original integration test for DELETE used `GET /tasks/:id` to
-verify removal — but that endpoint doesn't exist in this API. The AI
+verify removal - but that endpoint doesn't exist in this API. The AI
 rewrote it to use `GET /tasks` and check the deleted task is absent from
 the list.
 **Decision:** Before writing any integration test, enumerate the actual
 routes in src/routes/tasks.js. Never assume a REST endpoint exists because
 "it usually does." Rewrite tests to use only real endpoints.
-**Reasoning:** Tests against non-existent endpoints fail with 404 — but they
+**Reasoning:** Tests against non-existent endpoints fail with 404 - but they
 fail for the wrong reason. The reviewer sees a red test and assumes it's a
 bug in the source, not in the test. Any failure must map to a real behavior.
 **Tradeoff:** Slightly more setup per test (need to list-collect-and-search).
@@ -250,11 +250,11 @@ bug in the source, not in the test. Any failure must map to a real behavior.
 against an interface that doesn't exist. Verify the interface before
 writing the test.
 
-## DD-029: 19 Failing Tests Prove 6 Bugs — This Is the Deliverable
+## DD-029: 19 Failing Tests Prove 6 Bugs - This Is the Deliverable
 **Date:** 2026-09-28
 **Context:** Across the unit and integration suites, we have 19 failing
 tests: 10 in the unit file, 9 in the integration file. Every failure maps
-to one of 6 distinct bugs (B1, B2, B3, B4, B6 — B5 was demoted to an
+to one of 6 distinct bugs (B1, B2, B3, B4, B6 - B5 was demoted to an
 observation per DD-004).
 **Decision:** The failing tests ARE the bug report. Every entry in BUGS.md
 will link to specific test names and reference the pre-fix run output. No
@@ -263,7 +263,7 @@ prose can substitute for a deterministic red test.
 them. A test that fails on the reviewer's machine with the exact expected/
 received diff is the strongest form of evidence.
 **Tradeoff:** We have to keep the failing tests in the submission (rather
-than deleting them after fix). This is intentional — the assignment
+than deleting them after fix). This is intentional - the assignment
 expects tests, and the fix will turn a subset green while others stay red
 (they prove bugs we're NOT fixing).
 **Study note:** In a real PR that fixes a bug, the failing test becomes the
@@ -271,7 +271,7 @@ regression guard. Here, we're submitting pre-fix, so red is correct. The
 submission will include both a "pre-fix" run and a "post-fix" run to show
 the fix changed exactly the expected tests.
 
-## DD-030: Test Coverage Is Not the Goal — Trust Is
+## DD-030: Test Coverage Is Not the Goal - Trust Is
 **Date:** 2026-09-28
 **Context:** Coverage hit 97.01% (100% on routes/service/validators, 69%
 on app.js). The 69% on app.js is the error handler, which we chose not to
@@ -285,14 +285,14 @@ is worth the coverage points.
 **Tradeoff:** We submit at 97% instead of 99%. Unnoticeable to any reviewer.
 **Study note:** Coverage is a floor, not a ceiling. Above 80%, every extra
 percentage point should be justified by behavior, not vanity.
-## DD-031: AI Edit Left Both Lines — SyntaxError Avoided by Not Committing
+## DD-031: AI Edit Left Both Lines - SyntaxError Avoided by Not Committing
 **Date:** 2026-09-28
 **Context:** When patching getPaginated, the AI wrote the new `const offset`
 line but left the old one intact. This would have caused a SyntaxError
 ("Identifier 'offset' has already been declared"), crashing every test.
 **Decision:** We caught it because (a) the AI's edit output showed both
 lines, and (b) our prompt instructed DO NOT COMMIT + run tests before
-reporting. The AI skipped the test run — but we reviewed the diff before
+reporting. The AI skipped the test run - but we reviewed the diff before
 committing anyway.
 **Reasoning:** This is exactly the failure mode DD-018 warned about: AI
 describes intent as execution. Even when the edit lands, it may land
@@ -317,7 +317,7 @@ The other half is: "and nothing else changed." Two saved runs prove both.
 change anything unexpected?" The answer is the diff between pre-fix and
 post-fix test runs. Preserve both.
 
-## DD-033: AI Edits Leave "Ghost Lines" — Always Grep After Edit
+## DD-033: AI Edits Leave "Ghost Lines" - Always Grep After Edit
 **Date:** 2026-09-28
 **Context:** This is the SECOND time in a row the AI left the old line in
 place when applying an edit:
@@ -327,11 +327,11 @@ place when applying an edit:
 **Decision:** Every AI source-code edit must be followed by:
   - node -c <file> for syntax
   - grep for the specific identifier to confirm EXACTLY ONE occurrence
-Never trust the AI's edit summary — read the diff.
+Never trust the AI's edit summary - read the diff.
 **Reasoning:** LLM edits are append-biased: they add the new code but often
 forget to delete the old. Any edit that changes a single line is at high
 risk of this failure mode.
 **Tradeoff:** 2 verification commands per edit.
 **Study note:** Every AI code-editing tool has this failure mode. The
-solution is not "better AI" — it's mechanical verification after every
+solution is not "better AI" - it's mechanical verification after every
 edit. `node -c` and `grep -c` take 3 seconds combined.
