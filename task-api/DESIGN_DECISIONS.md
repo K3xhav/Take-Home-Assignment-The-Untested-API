@@ -232,3 +232,71 @@ bug report. Because it will.
 **Reasoning:** A reviewer opens a test file and wants to know in 10 seconds what it's testing and why. The file comment delivers that.
 **Tradeoff:** Small amount of boilerplate.
 **Study note:** Well-written test files are self-documenting. New engineers joining a team should be able to read the header and skip the body.
+
+## DD-028: Integration Tests Must Match the Actual API Surface
+**Date:** 2026-09-28
+**Context:** Original integration test for DELETE used `GET /tasks/:id` to
+verify removal — but that endpoint doesn't exist in this API. The AI
+rewrote it to use `GET /tasks` and check the deleted task is absent from
+the list.
+**Decision:** Before writing any integration test, enumerate the actual
+routes in src/routes/tasks.js. Never assume a REST endpoint exists because
+"it usually does." Rewrite tests to use only real endpoints.
+**Reasoning:** Tests against non-existent endpoints fail with 404 — but they
+fail for the wrong reason. The reviewer sees a red test and assumes it's a
+bug in the source, not in the test. Any failure must map to a real behavior.
+**Tradeoff:** Slightly more setup per test (need to list-collect-and-search).
+**Study note:** The most common cause of a "false red" test is testing
+against an interface that doesn't exist. Verify the interface before
+writing the test.
+
+## DD-029: 19 Failing Tests Prove 6 Bugs — This Is the Deliverable
+**Date:** 2026-09-28
+**Context:** Across the unit and integration suites, we have 19 failing
+tests: 10 in the unit file, 9 in the integration file. Every failure maps
+to one of 6 distinct bugs (B1, B2, B3, B4, B6 — B5 was demoted to an
+observation per DD-004).
+**Decision:** The failing tests ARE the bug report. Every entry in BUGS.md
+will link to specific test names and reference the pre-fix run output. No
+prose can substitute for a deterministic red test.
+**Reasoning:** The assignment asks us to prove bugs exist, not just describe
+them. A test that fails on the reviewer's machine with the exact expected/
+received diff is the strongest form of evidence.
+**Tradeoff:** We have to keep the failing tests in the submission (rather
+than deleting them after fix). This is intentional — the assignment
+expects tests, and the fix will turn a subset green while others stay red
+(they prove bugs we're NOT fixing).
+**Study note:** In a real PR that fixes a bug, the failing test becomes the
+regression guard. Here, we're submitting pre-fix, so red is correct. The
+submission will include both a "pre-fix" run and a "post-fix" run to show
+the fix changed exactly the expected tests.
+
+## DD-030: Test Coverage Is Not the Goal — Trust Is
+**Date:** 2026-09-28
+**Context:** Coverage hit 97.01% (100% on routes/service/validators, 69%
+on app.js). The 69% on app.js is the error handler, which we chose not to
+test (DD-009).
+**Decision:** Leave app.js at 69%. Do NOT write mock-error tests to push
+it higher. Overall coverage already exceeds the 80% requirement.
+**Reasoning:** The remaining 31% of app.js is the error handler. Testing it
+requires either adding a mock route that throws (polluting the app), or
+mocking the error middleware directly (violating "test behavior"). Neither
+is worth the coverage points.
+**Tradeoff:** We submit at 97% instead of 99%. Unnoticeable to any reviewer.
+**Study note:** Coverage is a floor, not a ceiling. Above 80%, every extra
+percentage point should be justified by behavior, not vanity.
+## DD-031: AI Edit Left Both Lines — SyntaxError Avoided by Not Committing
+**Date:** 2026-09-28
+**Context:** When patching getPaginated, the AI wrote the new `const offset`
+line but left the old one intact. This would have caused a SyntaxError
+("Identifier 'offset' has already been declared"), crashing every test.
+**Decision:** We caught it because (a) the AI's edit output showed both
+lines, and (b) our prompt instructed DO NOT COMMIT + run tests before
+reporting. The AI skipped the test run — but we reviewed the diff before
+committing anyway.
+**Reasoning:** This is exactly the failure mode DD-018 warned about: AI
+describes intent as execution. Even when the edit lands, it may land
+incorrectly. The DO-NOT-COMMIT gate is what saved us here.
+**Tradeoff:** We add a manual review step to every AI code edit.
+**Study note:** Never let an AI commit source code. Ever. The diff is the
+contract. If you haven't read the diff line-by-line, it hasn't happened.

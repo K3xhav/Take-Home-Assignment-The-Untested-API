@@ -9,7 +9,10 @@ const findById = (id) => tasks.find((t) => t.id === id);
 const getByStatus = (status) => tasks.filter((t) => t.status.includes(status));
 
 const getPaginated = (page, limit) => {
-  const offset = page * limit;
+  // Fixed: page is 1-based, so the offset for page N is (N-1)*limit.
+  // Previously this was `page * limit`, which returned the wrong slice
+  // for every request (page 1 returned items 10-19 for limit=10).
+  const offset = (page - 1) * limit;
   return tasks.slice(offset, offset + limit);
 };
 
